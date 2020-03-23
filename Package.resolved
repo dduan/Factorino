@@ -1,0 +1,34 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "IndexStoreDB",
+        "repositoryURL": "https://github.com/apple/indexstore-db.git",
+        "state": {
+          "branch": "swift-5.1-branch",
+          "revision": "5960ba789ea7983516c7d419ad73ae264fced8ed",
+          "version": null
+        }
+      },
+      {
+        "package": "Pathos",
+        "repositoryURL": "https://github.com/dduan/Pathos",
+        "state": {
+          "branch": null,
+          "revision": "1c87529ebec5243004bbb86caa4247fd5eb6b051",
+          "version": "0.2.2"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "35b76bf577d3cc74820f8991894ce3bcdf024ddc",
+          "version": "0.0.2"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
