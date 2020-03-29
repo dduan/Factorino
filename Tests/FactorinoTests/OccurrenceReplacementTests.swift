@@ -1,4 +1,4 @@
-@testable import Renamer
+@testable import Factorino
 import XCTest
 
 final class OccurrenceReplacementTests: XCTestCase {

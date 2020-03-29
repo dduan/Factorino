@@ -76,7 +76,7 @@ func findStore(fromFilePath path: String) -> IndexStoreDB? {
     return nil
 }
 
-enum Renamer: Error {
+enum Factorino: Error {
     case couldNotFindStore
 }
 
@@ -93,7 +93,7 @@ public func renameSymbol(fromFile filePath: String, line: Int, column: Int, symb
     }
 
     guard let store = createStore() else {
-        throw Renamer.couldNotFindStore
+        throw Factorino.couldNotFindStore
     }
 
     let finder = OccurrenceFinder(store: store)

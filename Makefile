@@ -5,4 +5,4 @@ test:
 .PHONY: build
 build:
 	@swift build --configuration release --disable-sandbox -Xswiftc -warnings-as-errors
-	@mv .build/release/renamer-cli .build/release/renamer
+	@mv .build/release/factorino-cli .build/release/fact

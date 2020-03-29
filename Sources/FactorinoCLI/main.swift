@@ -1,7 +1,7 @@
 import ArgumentParser
-import Renamer
+import Factorino
 
-struct RenamerCommand: ParsableCommand {
+struct FactorinoCommand: ParsableCommand {
     @Argument()
     var filePath: String
     @Argument()
@@ -27,4 +27,4 @@ struct RenamerCommand: ParsableCommand {
     }
 }
 
-RenamerCommand.main()
+FactorinoCommand.main()

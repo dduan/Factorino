@@ -2,15 +2,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "Rename",
+    name: "Factorino",
     products: [
         .executable(
-            name: "renamer-cli",
-            targets: ["RenamerCLI"]
+            name: "factorino-cli",
+            targets: ["FactorinoCLI"]
         ),
         .library(
-            name: "Renamer",
-            targets: ["Renamer"]
+            name: "Factorino",
+            targets: ["Factorino"]
         ),
     ],
     dependencies: [
@@ -20,23 +20,23 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "RenamerCLI",
+            name: "FactorinoCLI",
             dependencies: [
                 "ArgumentParser",
-                "Renamer",
+                "Factorino",
             ]
         ),
         .target(
-            name: "Renamer",
+            name: "Factorino",
             dependencies: [
                 "IndexStoreDB",
                 "Pathos",
             ]
         ),
         .testTarget(
-            name: "RenamerTests",
+            name: "FactorinoTests",
             dependencies: [
-                "Renamer",
+                "Factorino",
             ]
         ),
     ]

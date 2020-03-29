@@ -1,5 +1,3 @@
-# Rename
-
 Preparations
 
 1. find libIndexStore
