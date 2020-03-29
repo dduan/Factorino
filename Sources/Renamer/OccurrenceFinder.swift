@@ -35,8 +35,8 @@ final class OccurrenceFinder {
             let found = allOccurrences.contains { occur in
                 occur.location.path == sourcePath &&
                     occur.location.line - 1 == line &&
-                    occur.location.utf8Column <= column &&
-                    occur.location.utf8Column + symbolName.count > column
+                    occur.location.utf8Column - 1 <= column &&
+                    occur.location.utf8Column - 1 + symbolName.count > column
             }
 
             if found {
