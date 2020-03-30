@@ -7,6 +7,61 @@ enum OccurrenceFinderError: Error {
     case invalidSymbol
 }
 
+final class DefinitionFinder {
+    let store: IndexStoreDB
+
+    init(store: IndexStoreDB) {
+        self.store = store
+    }
+
+    func find(sourcePath: String?, line: Int?, column: Int?, symbolName: String) throws -> [SymbolOccurrence] {
+        var result = [SymbolOccurrence]()
+        self.store.pollForUnitChangesAndWait()
+        self.store.forEachCanonicalSymbolOccurrence(
+            containing: symbolName,
+            anchorStart: true,
+            anchorEnd: false,
+            subsequence: false,
+            ignoreCase: false)
+        { finding in
+            guard !finding.location.isSystem else {
+                return true
+            }
+
+            let allOccurrences = self.store.occurrences(
+                ofUSR: finding.symbol.usr, roles: [.definition]
+            )
+
+            let found = allOccurrences.contains { occur in
+                if let sourcePath = sourcePath, !occur.location.path.hasPrefix(sourcePath) {
+                    return false
+                }
+
+                if let line = line, occur.location.line - 1 != line {
+                    return false
+                }
+
+                if let column = column,
+                    (occur.location.utf8Column - 1 > column ||
+                    occur.location.utf8Column - 1 + symbolName.count <= column)
+                {
+                    return false
+                }
+
+                return true
+            }
+
+            if found && !result.contains(finding) {
+                result.append(finding)
+            }
+
+            return true
+        }
+
+        return result
+    }
+}
+
 final class OccurrenceFinder {
     let store: IndexStoreDB
 

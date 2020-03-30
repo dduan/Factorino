@@ -80,15 +80,37 @@ enum Factorino: Error {
     case couldNotFindStore
 }
 
-public func renameSymbol(fromFile filePath: String, line: Int, column: Int, symbolName: String, newName: String, indexStorePath: String?) throws {
+//public func renameSymbol(fromFile filePath: String?, line: Int?, column: Int?, symbolName: String, newName: String, indexStorePath: String?) throws {
+//    func createStore() -> IndexStoreDB? {
+//        if let explicitStorePath = indexStorePath {
+//            return try? IndexStoreDB(
+//                storePath: explicitStorePath,
+//                databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
+//                library: IndexStoreLibrary(dylibPath: libIndexStorePath))
+//        } else {
+//            return findStore(fromFilePath: filePath)
+//        }
+//    }
+//
+//    guard let store = createStore() else {
+//        throw Factorino.couldNotFindStore
+//    }
+//
+//    let
+//    let finder = OccurrenceFinder(store: store)
+//    let occurs = try finder.find(sourcePath: absolutePath(ofPath: filePath), line: line, column: column, symbolName: symbolName)
+//    try replaceSymbolOccurrences(occurrences: occurs, newName: newName)
+//}
+
+public func findDefinition(fromFile filePath: String?, line: Int?, column: Int?, symbolName: String, newName: String, indexStorePath: String?) throws {
     func createStore() -> IndexStoreDB? {
         if let explicitStorePath = indexStorePath {
             return try? IndexStoreDB(
                 storePath: explicitStorePath,
                 databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
                 library: IndexStoreLibrary(dylibPath: libIndexStorePath))
-        } else {
-            return findStore(fromFilePath: filePath)
+        } else  {
+            return findStore(fromFilePath: filePath ?? "./")
         }
     }
 
@@ -96,7 +118,10 @@ public func renameSymbol(fromFile filePath: String, line: Int, column: Int, symb
         throw Factorino.couldNotFindStore
     }
 
-    let finder = OccurrenceFinder(store: store)
-    let occurs = try finder.find(sourcePath: absolutePath(ofPath: filePath), line: line, column: column, symbolName: symbolName)
-    try replaceSymbolOccurrences(occurrences: occurs, newName: newName)
+    let finder = DefinitionFinder(store: store)
+    let occurs = try finder.find(sourcePath: filePath.map(absolutePath(ofPath:)), line: line, column: column, symbolName: symbolName)
+    print(occurs.count)
+    for o in occurs {
+        print(o)
+    }
 }

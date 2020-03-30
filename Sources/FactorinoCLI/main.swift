@@ -1,13 +1,13 @@
 import ArgumentParser
 import Factorino
 
-struct FactorinoCommand: ParsableCommand {
-    @Argument()
-    var filePath: String
-    @Argument()
-    var line: Int
-    @Argument()
-    var column: Int
+struct X: ParsableCommand {
+    @Option()
+    var filePath: String?
+    @Option()
+    var line: Int?
+    @Option()
+    var column: Int?
     @Argument()
     var symbol: String
     @Argument()
@@ -16,7 +16,7 @@ struct FactorinoCommand: ParsableCommand {
     var indexStorePath: String?
 
     func run() throws {
-        try renameSymbol(
+        try findDefinition(
             fromFile: filePath,
             line: line,
             column: column,
@@ -27,4 +27,4 @@ struct FactorinoCommand: ParsableCommand {
     }
 }
 
-FactorinoCommand.main()
+X.main()
