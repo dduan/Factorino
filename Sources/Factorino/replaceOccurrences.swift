@@ -102,7 +102,7 @@ enum Factorino: Error {
 //    try replaceSymbolOccurrences(occurrences: occurs, newName: newName)
 //}
 
-public func findDefinition(fromFile filePath: String?, line: Int?, column: Int?, symbolName: String, newName: String, indexStorePath: String?) throws {
+public func findDefinition(_ query: Query, indexStorePath: String?) throws {
     func createStore() -> IndexStoreDB? {
         if let explicitStorePath = indexStorePath {
             return try? IndexStoreDB(
@@ -110,7 +110,7 @@ public func findDefinition(fromFile filePath: String?, line: Int?, column: Int?,
                 databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
                 library: IndexStoreLibrary(dylibPath: libIndexStorePath))
         } else  {
-            return findStore(fromFilePath: filePath ?? "./")
+            return findStore(fromFilePath: query.path ?? "./")
         }
     }
 
@@ -119,7 +119,7 @@ public func findDefinition(fromFile filePath: String?, line: Int?, column: Int?,
     }
 
     let finder = DefinitionFinder(store: store)
-    let occurs = try finder.find(sourcePath: filePath.map(absolutePath(ofPath:)), line: line, column: column, symbolName: symbolName)
+    let occurs = try finder.find(query: query)
     print(occurs.count)
     for o in occurs {
         print(o)

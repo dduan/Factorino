@@ -14,9 +14,21 @@ final class DefinitionFinder {
         self.store = store
     }
 
-    func find(sourcePath: String?, line: Int?, column: Int?, symbolName: String) throws -> [SymbolOccurrence] {
-        var result = [SymbolOccurrence]()
+
+    func find(query: Query) throws -> [SymbolOccurrence] {
         self.store.pollForUnitChangesAndWait()
+        switch query {
+        case .cursor(let cursor):
+            return try self.find(sourcePath: cursor.pathPrefix, line: cursor.line, column: cursor.column,
+                             symbolName: cursor.symbol)
+        case .usr(let usr):
+            return self.store.occurrences(ofUSR: usr, roles: .definition)
+        }
+    }
+
+    private func find(sourcePath: String?, line: Int?, column: Int?, symbolName: String) throws -> [SymbolOccurrence] {
+        let sourcePath = try sourcePath.map(absolutePath(ofPath: ))
+        var result = [SymbolOccurrence]()
         self.store.forEachCanonicalSymbolOccurrence(
             containing: symbolName,
             anchorStart: true,
@@ -29,7 +41,7 @@ final class DefinitionFinder {
             }
 
             let allOccurrences = self.store.occurrences(
-                ofUSR: finding.symbol.usr, roles: [.definition]
+                ofUSR: finding.symbol.usr, roles: .definition
             )
 
             let found = allOccurrences.contains { occur in
