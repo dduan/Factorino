@@ -2,16 +2,22 @@ import ArgumentParser
 import Factorino
 
 struct QueryOptions: ParsableArguments {
-    @Option()
-    var filePath: String?
-    @Option()
+    @Option(name: [.short, .long])
+    var path: String?
+    @Option(name: [.short, .long])
     var line: Int?
-    @Option()
+    @Option(name: [.short, .long])
     var column: Int?
-    @Option()
+    @Option(name: [.short, .long])
     var usr: String?
-    @Argument()
+    @Argument(default: "")
     var symbol: String
+
+    mutating func validate() throws {
+        if symbol == "" && usr == nil {
+            throw ValidationError("Please specify either a symbol name or a USR.")
+        }
+    }
 }
 
 extension Query {
@@ -22,7 +28,7 @@ extension Query {
             self = .cursor(
                 .init(
                     symbol: options.symbol,
-                    pathPrefix: options.filePath,
+                    pathPrefix: options.path,
                     line: options.line,
                     column: options.column
                 )
