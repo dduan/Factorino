@@ -49,13 +49,13 @@ final class DefinitionFinder {
                     return false
                 }
 
-                if let line = line, occur.location.line - 1 != line {
+                if let line = line, occur.location.line != line {
                     return false
                 }
 
                 if let column = column,
-                    (occur.location.utf8Column - 1 > column ||
-                    occur.location.utf8Column - 1 + symbolName.count <= column)
+                    (occur.location.utf8Column > column ||
+                    occur.location.utf8Column + symbolName.count <= column)
                 {
                     return false
                 }

@@ -42,21 +42,6 @@ func replaceOccurences(inSource source: String, occurrences: [(Int, Int)], name:
 }
 
 
-func replaceSymbolOccurrences(occurrences: [SymbolOccurrence], newName: String) throws {
-    let groupByFile: [String: [SymbolOccurrence]] = .init(grouping: occurrences) { $0.location.path }
-    let name = occurrences.first?.symbol.name ?? ""
-    for (filePath, occurrences) in groupByFile {
-        try write(
-            replaceOccurences(
-                inSource: try readString(atPath: filePath),
-                occurrences: occurrences.map { ($0.location.line - 1, $0.location.utf8Column - 1) },
-                name: name,
-                newName: newName
-            ),
-            atPath: filePath
-        )
-    }
-}
 
 func findStore(fromFilePath path: String) -> IndexStoreDB? {
     var path = path
@@ -76,33 +61,12 @@ func findStore(fromFilePath path: String) -> IndexStoreDB? {
     return nil
 }
 
-enum Factorino: Error {
+enum FactorinoError: Error {
     case couldNotFindStore
     case missingDefinition(Query)
     case multipleDefinitions([SymbolOccurrence])
+    case unsupportedRefactor(String)
 }
-
-//public func renameSymbol(fromFile filePath: String?, line: Int?, column: Int?, symbolName: String, newName: String, indexStorePath: String?) throws {
-//    func createStore() -> IndexStoreDB? {
-//        if let explicitStorePath = indexStorePath {
-//            return try? IndexStoreDB(
-//                storePath: explicitStorePath,
-//                databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
-//                library: IndexStoreLibrary(dylibPath: libIndexStorePath))
-//        } else {
-//            return findStore(fromFilePath: filePath)
-//        }
-//    }
-//
-//    guard let store = createStore() else {
-//        throw Factorino.couldNotFindStore
-//    }
-//
-//    let
-//    let finder = OccurrenceFinder(store: store)
-//    let occurs = try finder.find(sourcePath: absolutePath(ofPath: filePath), line: line, column: column, symbolName: symbolName)
-//    try replaceSymbolOccurrences(occurrences: occurs, newName: newName)
-//}
 
 func createStore(query: Query, indexStorePath: String?) throws -> IndexStoreDB {
     let store: IndexStoreDB?
@@ -116,7 +80,7 @@ func createStore(query: Query, indexStorePath: String?) throws -> IndexStoreDB {
     }
 
     guard let result = store else {
-        throw Factorino.couldNotFindStore
+        throw FactorinoError.couldNotFindStore
     }
 
     return result
@@ -132,12 +96,36 @@ public func findOccurrences(_ query: Query, indexStorePath: String?) throws -> [
     let definitions = try DefinitionFinder(store: store).find(query: query)
 
     guard definitions.count < 2 else {
-        throw Factorino.multipleDefinitions(definitions)
+        throw FactorinoError.multipleDefinitions(definitions)
     }
 
     guard let definition = definitions.first else {
-        throw Factorino.missingDefinition(query)
+        throw FactorinoError.missingDefinition(query)
     }
 
     return store.occurrences(ofUSR: definition.symbol.usr, roles: [.definition, .reference])
+}
+
+public func replace(_ occurrences: [SymbolOccurrence], withNewName newName: String) throws {
+    guard let firstOccurrence = occurrences.first else {
+        fatalError("Called \(#function) with no occurrences")
+    }
+
+    if firstOccurrence.symbol.kind == .function {
+        throw FactorinoError.unsupportedRefactor("renaming functions")
+    }
+
+    let groupByFile: [String: [SymbolOccurrence]] = .init(grouping: occurrences) { $0.location.path }
+    let name = firstOccurrence.symbol.name
+    for (filePath, occurrences) in groupByFile {
+        try write(
+            replaceOccurences(
+                inSource: try readString(atPath: filePath),
+                occurrences: occurrences.map { ($0.location.line - 1, $0.location.utf8Column - 1) },
+                name: name,
+                newName: newName
+            ),
+            atPath: filePath
+        )
+    }
 }

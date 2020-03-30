@@ -67,11 +67,28 @@ struct Occur: ParsableCommand {
     }
 }
 
+struct Rename: ParsableCommand {
+    @OptionGroup()
+    var queryOptions: QueryOptions
+
+    @Option(help: "Path to index store")
+    var indexStorePath: String?
+
+    @Argument()
+    var newSymbol: String
+
+    func run() throws {
+        let occurs = try findOccurrences(Query(self.queryOptions), indexStorePath: self.indexStorePath)
+        try replace(occurs, withNewName: newSymbol)
+    }
+}
+
 struct Fact: ParsableCommand {
     static var configuration = CommandConfiguration(
         subcommands: [
             Define.self,
             Occur.self,
+            Rename.self,
         ]
     )
 }
