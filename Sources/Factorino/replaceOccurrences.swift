@@ -78,6 +78,8 @@ func findStore(fromFilePath path: String) -> IndexStoreDB? {
 
 enum Factorino: Error {
     case couldNotFindStore
+    case missingDefinition(Query)
+    case multipleDefinitions([SymbolOccurrence])
 }
 
 //public func renameSymbol(fromFile filePath: String?, line: Int?, column: Int?, symbolName: String, newName: String, indexStorePath: String?) throws {
@@ -102,26 +104,40 @@ enum Factorino: Error {
 //    try replaceSymbolOccurrences(occurrences: occurs, newName: newName)
 //}
 
-public func findDefinition(_ query: Query, indexStorePath: String?) throws {
-    func createStore() -> IndexStoreDB? {
-        if let explicitStorePath = indexStorePath {
-            return try? IndexStoreDB(
-                storePath: explicitStorePath,
-                databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
-                library: IndexStoreLibrary(dylibPath: libIndexStorePath))
-        } else  {
-            return findStore(fromFilePath: query.path ?? "./")
-        }
+func createStore(query: Query, indexStorePath: String?) throws -> IndexStoreDB {
+    let store: IndexStoreDB?
+    if let explicitStorePath = indexStorePath {
+        store = try? IndexStoreDB(
+            storePath: explicitStorePath,
+            databasePath: join(paths: createTemporaryDirectory(), "indexstore_db"),
+            library: IndexStoreLibrary(dylibPath: libIndexStorePath))
+    } else  {
+        store = findStore(fromFilePath: query.path ?? "./")
     }
 
-    guard let store = createStore() else {
+    guard let result = store else {
         throw Factorino.couldNotFindStore
     }
 
-    let finder = DefinitionFinder(store: store)
-    let occurs = try finder.find(query: query)
-    print(occurs.count)
-    for o in occurs {
-        print(o)
+    return result
+}
+
+public func findDefinition(_ query: Query, indexStorePath: String?) throws -> [SymbolOccurrence] {
+    return try DefinitionFinder(store: createStore(query: query, indexStorePath: indexStorePath))
+        .find(query: query)
+}
+
+public func findOccurrences(_ query: Query, indexStorePath: String?) throws -> [SymbolOccurrence] {
+    let store = try createStore(query: query, indexStorePath: indexStorePath)
+    let definitions = try DefinitionFinder(store: store).find(query: query)
+
+    guard definitions.count < 2 else {
+        throw Factorino.multipleDefinitions(definitions)
     }
+
+    guard let definition = definitions.first else {
+        throw Factorino.missingDefinition(query)
+    }
+
+    return store.occurrences(ofUSR: definition.symbol.usr, roles: [.definition, .reference])
 }

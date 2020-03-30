@@ -39,13 +39,34 @@ struct Define: ParsableCommand {
     var indexStorePath: String?
 
     func run() throws {
-        try findDefinition(Query(self.queryOptions), indexStorePath: self.indexStorePath)
+        let occurs = try findDefinition(Query(self.queryOptions), indexStorePath: self.indexStorePath)
+        for o in occurs {
+            print(o)
+        }
+    }
+}
+
+struct Occur: ParsableCommand {
+    @OptionGroup()
+    var queryOptions: QueryOptions
+
+    @Option(help: "Path to index store")
+    var indexStorePath: String?
+
+    func run() throws {
+        let occurs = try findOccurrences(Query(self.queryOptions), indexStorePath: self.indexStorePath)
+        for o in occurs {
+            print(o)
+        }
     }
 }
 
 struct Fact: ParsableCommand {
     static var configuration = CommandConfiguration(
-        subcommands: [Define.self]
+        subcommands: [
+            Define.self,
+            Occur.self,
+        ]
     )
 }
 
