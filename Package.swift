@@ -15,7 +15,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/indexstore-db.git", .branch("swift-5.1-branch")),
-        .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.2")),
+        .package(url: "https://github.com/apple/swift-argument-parser", .exact("0.0.4")),
         .package(url: "https://github.com/dduan/Pathos", .exact("0.2.2")),
     ],
     targets: [
