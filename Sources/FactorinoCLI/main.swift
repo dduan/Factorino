@@ -1,7 +1,7 @@
 import ArgumentParser
 import Factorino
 
-struct X: ParsableCommand {
+struct Fact: ParsableCommand {
     @Option()
     var filePath: String?
     @Option()
@@ -10,12 +10,10 @@ struct X: ParsableCommand {
     var column: Int?
     @Option()
     var usr: String?
-    @Argument()
-    var symbol: String
-    @Argument()
-    var newSymbol: String
     @Option(help: "Path to index store")
     var indexStorePath: String?
+    @Argument()
+    var symbol: String
 
     func run() throws {
         let query: Query
@@ -36,4 +34,4 @@ struct X: ParsableCommand {
     }
 }
 
-X.main()
+Fact.main()
