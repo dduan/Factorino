@@ -36,7 +36,7 @@ fact occur MyAwesomeClass
 ```
 
 Running the `define` subcommand is not required. However, if `fact define` would
-have return multiple definitions, `define occur` would refuse to proceed. We can
+have return multiple definitions, `fact occur` would refuse to proceed. We can
 tell Factorino which of the definition we want to look up by enhancing the
 [query](#query):
 

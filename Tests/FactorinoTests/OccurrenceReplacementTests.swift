@@ -2,7 +2,7 @@
 import XCTest
 
 final class OccurrenceReplacementTests: XCTestCase {
-    func testReplacingSingleOccurrences() {
+    func testReplacingSingleOccurrence() {
         let source = "one four three"
         let result = replaceOccurences(inSource: source, occurrences: [(0, 4)], name: "four", newName: "two")
         XCTAssertEqual(result, "one two three")
